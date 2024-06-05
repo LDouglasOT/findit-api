@@ -1,0 +1,49 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Login {
+  id           Int      @id @default(autoincrement())
+  PhoneNumber  String?
+  Password     String
+  token        String?
+  refreshToken String?
+  created      DateTime @default(now())
+  email        String?
+  FirstName    String
+  LastName     String
+  profile      String
+  startDate    DateTime?
+  endDate      DateTime?
+  shop         Shop[]
+}
+
+model Shop{
+  shopName  String
+  created   DateTime @default(now())
+  profile   String
+  subscription String
+  isActive  boolean
+  login     Login     @relation(fields: [loginId], references: [id])
+  loginId   Int
+}
+
+model Notifications{
+  message   String
+  created   DateTime @default(now())
+  header    String
+  global    String
+  userId    String
+  seen      String
+}
