@@ -30,20 +30,39 @@ model Login {
 }
 
 model Shop{
+  id        Int      @id @default(autoincrement())
   shopName  String
   created   DateTime @default(now())
   profile   String
   subscription String
-  isActive  boolean
   login     Login     @relation(fields: [loginId], references: [id])
   loginId   Int
+  products  Products[]
 }
 
 model Notifications{
+  id        Int      @id @default(autoincrement())
   message   String
   created   DateTime @default(now())
   header    String
   global    String
   userId    String
   seen      String
+}
+
+model Products{
+  id        Int      @id @default(autoincrement())
+  productName String
+  discount    Int @default(0)
+  created     DateTime @default(now())
+  price       Float
+  shop        Shop     @relation(fields: [shopId], references: [id])
+  shopId      Int
+  quantity    Int @default(0)
+  size        String?
+  color       String?
+  description String?
+  image       String?
+  isTrending  Boolean @default(false) 
+  
 }

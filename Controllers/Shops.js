@@ -4,17 +4,19 @@ const prisma = new PrismaClient();
 
 const createShop = async (req, res) => {
   try {
-    const { shopName, profile, subscription, isActive, loginId } = req.body;
+    const { shopName, profile, subscription, isActive} = req.body;
+    const user = await prisma.login.findMany({})
+    console.log(user)
     const shop = await prisma.shop.create({
       data: {
-        shopName,
-        profile,
-        subscription,
-        isActive,
-        loginId
+        shopName:shopName,
+        profile:profile,
+        subscription:subscription,
+        loginId: user[0].id
       }
     });
-    res.json(shop);
+    return res.json(shop);
+
   } catch (error) {
     console.error('Error creating shop:', error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -52,17 +54,15 @@ const getShopById = async (req, res) => {
 const updateShopById = async (req, res) => {
   try {
     const { id } = req.params;
-    const { shopName, profile, subscription, isActive, loginId } = req.body;
+    const { shopName, profile, subscription } = req.body;
     const updatedShop = await prisma.shop.update({
       where: {
         id: parseInt(id)
       },
       data: {
-        shopName,
-        profile,
-        subscription,
-        isActive,
-        loginId
+        shopName:shopName,
+        profile:profile,
+        subscription:subscription,
       }
     });
     res.json(updatedShop);

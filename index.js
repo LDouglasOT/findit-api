@@ -5,6 +5,9 @@ const swaggerUI = require('swagger-ui-express');
 const swaggerJSDoc = require('swagger-jsdoc');
 
 const app = express();
+const bodyParser = require('body-parser');
+
+app.use(bodyParser.json());
 
 const swaggerDefinition = {
   openapi: '3.0.0',
@@ -33,7 +36,10 @@ app.get('/', async (req, res, next) => {
   res.send({ message: 'Awesome it works 🐻' });
 });
 
-app.use('/api', require('./routes/api.auth'));
+app.use('/', require('./routes/api.auth'));
+app.use('/', require('./routes/api.shops'));
+app.use('/', require('./routes/api.notifications'));
+app.use('/', require('./routes/api.products'));
 
 const PORT = process.env.PORT || 3011;
 
