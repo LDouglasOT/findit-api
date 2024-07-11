@@ -40,6 +40,10 @@ app.use('/', require('./routes/api.auth'));
 app.use('/', require('./routes/api.shops'));
 app.use('/', require('./routes/api.notifications'));
 app.use('/', require('./routes/api.products'));
+app.use('/', require('./routes/api.categories'));
+app.use('/', require('./routes/api.orders'));
+app.use('/', require('./routes/api.utilities'));
+
 
 const PORT = process.env.PORT || 3011;
 

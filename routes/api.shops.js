@@ -1,6 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const { createShop, getAllShops, getShopById, updateShopById, deleteShopById } = require("../Controllers/Shops");
+const { 
+    createShop,
+    getAllShops, 
+    getShopById,
+    updateShopById,
+    deleteShopById,
+    getTrendingShops,
+    myShop,
+    searchVendorProducts,
+    FetchShop 
+} = require("../Controllers/Shops");
+const { authenticate } = require("../middleware/Authentication");
+const multer = require('multer');
+const upload = multer();
 
 /**k
  * @swagger
@@ -37,7 +50,7 @@ const { createShop, getAllShops, getShopById, updateShopById, deleteShopById } =
  *         description: Shop created successfully
  */
 
-router.post('/shop/create', createShop);
+router.post('/shop/create',authenticate,upload.array('userImages'), createShop);
 
 /**
  * @swagger
@@ -71,7 +84,7 @@ router.get('/shop/getall', getAllShops);
  *         description: Shop details retrieved successfully
  */
 
-router.get('/shop/:id', getShopById);
+router.get('/shop/:id',authenticate, getShopById);
 
 /**
  * @swagger
@@ -107,7 +120,7 @@ router.get('/shop/:id', getShopById);
  *         description: Shop updated successfully
  */
 
-router.post('/shop/:id', updateShopById);
+router.post('/shop/:id',authenticate, updateShopById);
 
 /**
  * @swagger
@@ -127,6 +140,87 @@ router.post('/shop/:id', updateShopById);
  *         description: Shop deleted successfully
  */
 
-router.delete('/shop/:id', deleteShopById);
+router.delete('/shop/:id',authenticate, deleteShopById);
+
+
+/**
+ * @swagger
+ * /shop/{id}:
+ *   get:
+ *     summary: Trending shops list
+ *     description: Trending shops list
+ *     tags: [trending Shops]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: false
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Shops
+ */
+
+router.get('/shops/trending', getTrendingShops);
+
+/**
+ * @swagger
+ * /shop/{id}:
+ *   get:
+ *     summary: My shop
+ *     description: This fetches the shop of the user
+ *     tags: [My Shops]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: false
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Shops
+ */
+
+router.get('/shop/search/:query/:vendor', searchVendorProducts);
+
+/**
+ * @swagger
+ * /shop/{id}:
+ *   get:
+ *     summary: My shop
+ *     description: This fetches the shop of the user
+ *     tags: [My Shops]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: false
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Shops
+ */
+
+router.get('/user/shop/:id',authenticate, myShop);
+
+/**
+ * @swagger
+ * /vendor/product/{id}:
+ *   get:
+ *     summary: Get a shop
+ *     description: This fetches the shop of the user
+ *     tags: [My Shops]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: false
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: fetch a specific shop
+ */
+router.get('/vendor/product/:id', FetchShop);
+
 
 module.exports = router;

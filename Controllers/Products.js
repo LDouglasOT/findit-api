@@ -1,11 +1,113 @@
 const { PrismaClient } = require('@prisma/client');
+var serviceAccount = require("./serviceAccountKey.json");
+var admin = require("firebase-admin");
+
 
 const prisma = new PrismaClient();
+const firebaseConfig = {
+  apiKey: "AIzaSyDZ0Dc5HQXCkrwfmJuoZcrSAVT_vcE_Bi0",
+  authDomain: "flirtify-616c0.firebaseapp.com",
+  projectId: "flirtify-616c0",
+  storageBucket: "flirtify-616c0.appspot.com",
+  messagingSenderId: "305402540915",
+  appId: "1:305402540915:web:a2ea8b773d478e5cd90b06",
+  measurementId: "G-G2C9KGD4XV"
+};
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  ...firebaseConfig
+});
+const bucket = admin.storage().bucket();
+
+const updateproduct = async (req, res) => {
+  try {
+
+    const file = req.files;
+
+    // return res.status(200).end();
+    if (!file) {
+      return res.status(400).send('No file uploaded.');
+    }
+    let imageArray = [];
+    for (const singlefile of file) {
+      const fileName = `${Date.now()}-${singlefile.originalname}`;
+
+      // Upload the file to Firebase Storage
+      const fileRef = bucket.file(fileName);
+      await fileRef.createWriteStream().end(singlefile.buffer);
+      // Get the download URL of the uploaded file
+      const imageUrl = await fileRef.getSignedUrl({
+        action: 'read',
+        expires: '01-01-2099', // Adjust the expiration date as needed
+      });
+      imageArray.push(imageUrl[0]);
+    }
+    if(imageArray.length > 0){
+      const update = await prisma.Products.update({
+        where:{
+          id:parseInt(req.body.id),
+          isProduct:true 
+        },
+        data:{
+          "productName":req.body.productName,
+          "price":parseFloat(req.body.price),
+          "quantity":parseInt(req.body.quantity),
+          "description":req.body.description,
+          "image":imageArray[0],
+          "images":imageArray
+        }
+      })    
+    }else{
+      const update = await prisma.Products.update({
+        where:{
+          id:parseInt(req.body.id),
+          isProduct:true 
+        },
+        data:{
+          "productName":req.body.productName,
+          "price":parseFloat(req.body.price),
+          "quantity":parseInt(req.body.quantity),
+          "description":req.body.description,
+        }
+      })  
+    }
+ 
+
+
+return res.status(200).end()
+
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Error uploading image.');
+  }
+}
 
 const createProducts = async (req, res) => {
   try {
     const { ProductsName, price, description, shopId, quantity, size, color, image} = req.body;
-    const user = await prisma.login.findMany({})
+
+    const file = req.files;
+
+    // return res.status(200).end();
+    if (!file) {
+      return res.status(400).send('No file uploaded.');
+    }
+    let imageArray = [];
+    for (const singlefile of file) {
+      const fileName = `${Date.now()}-${singlefile.originalname}`;
+
+      // Upload the file to Firebase Storage
+      const fileRef = bucket.file(fileName);
+      await fileRef.createWriteStream().end(singlefile.buffer);
+      // Get the download URL of the uploaded file
+      const imageUrl = await fileRef.getSignedUrl({
+        action: 'read',
+        expires: '01-01-2099', // Adjust the expiration date as needed
+      });
+      imageArray.push(imageUrl[0]);
+    }
+
     const Products = await prisma.Products.create({
       data: {
         productName:ProductsName,
@@ -16,13 +118,13 @@ const createProducts = async (req, res) => {
         color:color,
         description:description,
         image:image,
+        images:imageArray
       }
     });
     return res.json(Products);
 
   } catch (error) {
 
-    console.error('Error creating Products:', error);
     return res.status(500).json({ error: 'Internal Server Error' });
 
   }
@@ -31,8 +133,13 @@ const createProducts = async (req, res) => {
 const getAllProducts = async (req, res) => {
   try {
 
-    const Productss = await prisma.Products.findMany();
-    return res.json(Productss);
+    const Products = await prisma.Products.findMany({
+      where:{
+        isProduct:true
+      }
+    });
+    console.log(Products)
+    return res.json(Products);
 
   } catch (error) {
 
@@ -47,7 +154,8 @@ const getProductsById = async (req, res) => {
     const { id } = req.params;
     const Products = await prisma.Products.findUnique({
       where: {
-        id: parseInt(id)
+        id: parseInt(id),
+        isProduct:true 
       }
     });
     if (!Products) {
@@ -65,9 +173,30 @@ const updateProductsById = async (req, res) => {
   try {
     const { id } = req.params;
     const { ProductsName, price, description, shopId, quantity, size, color, image } = req.body;
+    let imageArray = [];
+    for (const singlefile of file) {
+      const fileName = `${Date.now()}-${singlefile.originalname}`;
+
+      // Upload the file to Firebase Storage
+      const fileRef = bucket.file(fileName);
+      await fileRef.createWriteStream().end(singlefile.buffer);
+      // Get the download URL of the uploaded file
+      const imageUrl = await fileRef.getSignedUrl({
+        action: 'read',
+        expires: '01-01-2099', // Adjust the expiration date as needed
+      });
+      imageArray.push(imageUrl[0]);
+    }
+    const category = await prisma.Category.findFirst({
+      where:{
+        "name":req.body.category
+      }
+    })
+
     const updatedProducts = await prisma.Products.update({
       where: {
-        id: parseInt(id)
+        id: parseInt(id),
+        isProduct:true 
       },
       data: {
         productName:ProductsName,
@@ -77,7 +206,8 @@ const updateProductsById = async (req, res) => {
         size:size,
         color:color,
         description:description,
-        image:image,
+        image:imageArray[0],
+        images:imageArray
       }
     });
     res.json(updatedProducts);
@@ -92,7 +222,8 @@ const deleteProductsById = async (req, res) => {
     const { id } = req.params;
     await prisma.Products.delete({
       where: {
-        id: parseInt(id)
+        id: parseInt(id),
+        isProduct:true  
       }
     });
     res.json({ message: 'Products deleted successfully' });
@@ -102,4 +233,54 @@ const deleteProductsById = async (req, res) => {
   }
 };
 
-module.exports = { createProducts, getAllProducts, getProductsById, updateProductsById, deleteProductsById };
+
+const addproduct = async (req, res) => {
+  try {
+    console.log(req.body)
+    const file = req.files;
+
+    // return res.status(200).end();
+    if (!file) {
+      return res.status(400).send('No file uploaded.');
+    }
+    let imageArray = [];
+    for (const singlefile of file) {
+      const fileName = `${Date.now()}-${singlefile.originalname}`;
+
+      // Upload the file to Firebase Storage
+      const fileRef = bucket.file(fileName);
+      await fileRef.createWriteStream().end(singlefile.buffer);
+      // Get the download URL of the uploaded file
+      const imageUrl = await fileRef.getSignedUrl({
+        action: 'read',
+        expires: '01-01-2099', // Adjust the expiration date as needed
+      });
+      imageArray.push(imageUrl[0]);
+    }
+    const category = await prisma.Category.findFirst({
+      where:{
+        "name":req.body.category
+      }
+    })
+
+    await prisma.Products.create({
+      data:{
+        "productName":req.body.productName,
+        "price":parseFloat(req.body.price),
+        "quantity":parseInt(req.body.quantity),
+        "description":req.body.description,
+        "shopId":parseInt(req.body.vendor),
+        "categoryId":category.id,
+        "image":imageArray[0],
+        "images":imageArray
+      }
+    })    
+  return res.status(200).end()
+
+  } catch (error) {
+    console.log(error.message)
+    res.status(500).send('Error uploading image.');
+  }
+}
+
+module.exports = { createProducts, getAllProducts, getProductsById, updateProductsById, deleteProductsById,updateproduct,bucket,addproduct };

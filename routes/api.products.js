@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { createProducts, getAllProducts, getProductsById, updateProductsById, deleteProductsById } = require("../Controllers/Products");
-const { searchProducts,getPopularProducts } = require("../Controllers/search");
+const { createProducts, getAllProducts, getProductsById, updateProductsById, deleteProductsById,updateproduct,addproduct } = require("../Controllers/Products");
+const { searchProducts,getPopularProducts,getReviews,CreateReview } = require("../Controllers/search");
+const multer = require('multer');
+const upload = multer();
 
 
 /**k
@@ -39,7 +41,7 @@ const { searchProducts,getPopularProducts } = require("../Controllers/search");
  *         description: Products created successfully
  */
 
-router.post('/products/create', createProducts);
+router.post('/products/create',upload.array('userImages'), createProducts);
 
 /**
  * @swagger
@@ -150,6 +152,54 @@ router.delete('/product/delete/:id', deleteProductsById);
  */
 
 router.post('/products/search', searchProducts);
+
+/**
+ * @swagger
+ * /product/{id}:
+ *   search:
+ *     summary: Special offer products
+ *     description: Search Products by with special offer
+ *     tags: [Special offer Products]
+ *     parameters:
+ *       - in: path
+ *     responses:
+ *       200:
+ *         description: Products
+ */
 router.get('/products/trending', getPopularProducts);
+
+/**
+ * @swagger
+ * /product/reviews/{id}:
+ *   search:
+ *     summary: Special offer Reviews
+ *     description: Search Reviews by with special offer
+ *     tags: [Special offer Reviews]
+ *     parameters:
+ *       - in: path
+ *     responses:
+ *       200:
+ *         description: Reviews
+ */
+router.get('/products/reviews/:id', getReviews);
+
+/**
+ * @swagger
+ * /product/reviews/create/:
+ *   search:
+ *     summary: create Reviews
+ *     description: create Reviews
+ *     tags: [Special offer Reviews]
+ *     parameters:
+ *       - in: path
+ *     responses:
+ *       200:
+ *         description: Reviews
+ */
+router.post('/reviews/create/', CreateReview);
+
+router.post("/product/update",upload.array('userImages'),updateproduct)
+
+router.post("/product/add",upload.array('userImages'),addproduct)
 
 module.exports = router;

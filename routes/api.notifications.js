@@ -1,6 +1,7 @@
 const { createNotification, getAllNotifications, getNotificationById, updateNotificationById, deleteNotificationById } = require("../Controllers/Notifications")
 const express = require('express');
 const router = express.Router();
+const { authenticate } = require("../middleware/Authentication");
 /**
  * @swagger
  * tags:
@@ -37,7 +38,7 @@ const router = express.Router();
  *         description: Notification created successfully
  */
 
-router.post('/notifications/create', createNotification);
+router.post('/notifications/create',authenticate, createNotification);
 
 /**
  * @swagger
@@ -51,7 +52,7 @@ router.post('/notifications/create', createNotification);
  *         description: List of notifications retrieved successfully
  */
 
-router.get('/notifications/getall', getAllNotifications);
+router.get('/notifications/getall',authenticate, getAllNotifications);
 
 /**
  * @swagger
@@ -74,7 +75,7 @@ router.get('/notifications/getall', getAllNotifications);
  *         description: Notification not found
  */
 
-router.get('/notifications/:id', getNotificationById);
+router.get('/notifications/:id',authenticate, getNotificationById);
 
 /**
  * @swagger
@@ -114,7 +115,7 @@ router.get('/notifications/:id', getNotificationById);
  *         description: Notification not found
  */
 
-router.put('/notifications/:id', updateNotificationById);
+router.put('/notifications/:id',authenticate, updateNotificationById);
 
 /**
  * @swagger
