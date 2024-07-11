@@ -9,8 +9,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = "postgresql://findit:findit@localhost:5432/findit"
 }
 
 model Login {
@@ -30,20 +30,100 @@ model Login {
 }
 
 model Shop{
+  id        Int      @id @default(autoincrement())
   shopName  String
   created   DateTime @default(now())
   profile   String
   subscription String
-  isActive  boolean
+  latitude  Float @default(0.00)
+  longitude Float @default(0.00)
+  level     String @default("Basic")
+  Phonenumber String @default("0000000000")
+  location  String  @default("General")
   login     Login     @relation(fields: [loginId], references: [id])
   loginId   Int
+  products  Products[]
+  hasOffer  Boolean @default(false) 
+  category  String @default("General")
+  rating    Int @default(1)
+  orders    Order[]
+  trial     DateTime @default(now())
+  credit    Int @default(0)
 }
 
 model Notifications{
+  id        Int      @id @default(autoincrement())
   message   String
   created   DateTime @default(now())
   header    String
   global    String
   userId    String
   seen      String
+}
+
+model Products{
+  id        Int      @id @default(autoincrement())
+  productName String
+  discount    Int @default(0)
+  created     DateTime @default(now())
+  price       Float
+  shop        Shop     @relation(fields: [shopId], references: [id])
+  shopId      Int
+  quantity    Int @default(0)
+  size        String?
+  color       String?
+  description String?
+  image       String?
+  isTrending  Boolean @default(false) 
+  isOffer     Boolean @default(false)
+  reviews     Reviews[]
+  category    Category?     @relation(fields: [categoryId], references: [id])
+  categoryId  Int?
+  order    Order?     @relation(fields: [orderId], references: [id])  
+  orderId  Int?
+  isProduct  Boolean @default(true)
+  condition String @default("New")
+  views     Int @default(0)
+  sold      Int @default(0)
+  images    String[]
+}
+
+model Reviews{
+  id        Int      @id @default(autoincrement())
+  review    String
+  created   DateTime @default(now())
+  rating    Int
+  username  String?
+  userId    Int
+  reviews   Products     @relation(fields: [reviewId], references: [id])
+  reviewId    Int
+}
+
+model Category{
+  id        Int      @id @default(autoincrement())
+  name      String
+  logo      String
+  products  Products[]
+}
+
+model Order{
+  id Int @id @default(autoincrement())
+  created DateTime @default(now())
+  isDelivered Boolean @default(false)
+  isPaid Boolean @default(false)
+  isCancelled Boolean @default(false)
+  isProcessing Boolean @default(false)
+  shop Shop @relation(fields: [shopId], references: [id])
+  shopId Int
+  order Products[]
+}
+
+model Banner{
+  id        Int      @id @default(autoincrement())
+  image     String
+  created   DateTime @default(now())
+  tagLine   String
+  isActive  Boolean @default(false)
+  color     String
+  header    String?
 }
