@@ -134,8 +134,8 @@ const generate = async (req, res) => {
       let contextx = {
           "msisdn": [phone],
           "message": message,
-          "username": "douglas",
-          "password": "NtWpD@6n&V7mTR"
+         "username": "odysseytech",
+         "password": "NtWpD@6n&V7mTR"
       }
       console.log(contextx)
       const response = await axios.post("https://mysms.trueafrican.com/v1/api/esme/send", contextx)
