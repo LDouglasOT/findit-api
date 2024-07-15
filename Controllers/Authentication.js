@@ -138,10 +138,10 @@ const generate = async (req, res) => {
           "password": "NtWpD@6n&V7mTR"
       }
       console.log(contextx)
-      // const response = await axios.post("https://mysms.trueafrican.com/v1/api/esme/send", contextx)
-      // if (response.data.code == 200) {
+      const response = await axios.post("https://mysms.trueafrican.com/v1/api/esme/send", contextx)
+      if (response.data.code == 200) {
       return res.status(200).json({ "message": "OTP message succefully sent", "head": "Success", "decorder": decorder })
-    //  }
+     }
   } catch (err) {
       console.log(err.message)
       return res.status(500).send({ "message": "Something went wrong", "head": "success" })
