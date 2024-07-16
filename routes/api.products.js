@@ -3,6 +3,7 @@ const router = express.Router();
 const { createProducts, getAllProducts, getProductsById, updateProductsById, deleteProductsById,updateproduct,addproduct } = require("../Controllers/Products");
 const { searchProducts,getPopularProducts,getReviews,CreateReview } = require("../Controllers/search");
 const multer = require('multer');
+const { authenticate } = require('../middleware/Authentication');
 const upload = multer();
 
 
@@ -200,6 +201,6 @@ router.post('/reviews/create/', CreateReview);
 
 router.post("/product/update",upload.array('userImages'),updateproduct)
 
-router.post("/product/add",upload.array('userImages'),addproduct)
+router.post("/product/add",upload.array('userImages'),authenticate,addproduct)
 
 module.exports = router;
