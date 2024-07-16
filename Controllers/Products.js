@@ -240,7 +240,7 @@ const addproduct = async (req, res) => {
     const file = req.files;
     const userId = req.body.user_id;
 
-    const shop = await prisma.shop.first({
+    const shop = await prisma.Shop.findFirst({
       where: {
         loginId: parseInt(userId)
       }
