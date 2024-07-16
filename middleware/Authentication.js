@@ -15,18 +15,13 @@ const authenticate = async (req, res, next) => {
   const authorizationHeader = req.headers.authorization;
 
   console.log(authorizationHeader);
-  // console.log(req.headers);
+
   if (authorizationHeader) {
-    // Extract the token from the "Bearer TOKEN" format
+
     const token = authorizationHeader.split(' ')[1];
-    // Verify the token
-    console.log(token);
     const decodedToken = await verifyToken(token);
-    console.log(decodedToken);
-    console.log("fjhfkjdsghjkfgkdskifhgkjdshjfklhkldshkflhiksdfhgikhfkljhgkjlh")
     if (decodedToken) {
-      // Token is valid
-      req.body.user_id = decodedToken.userId; // Assuming the ID is stored in `id` in the token payload
+      req.body.user_id = decodedToken.userId; 
       next();
     } else {
       return res.status(403).end();

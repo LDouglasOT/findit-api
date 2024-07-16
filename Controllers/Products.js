@@ -238,6 +238,13 @@ const addproduct = async (req, res) => {
   try {
     console.log(req.body)
     const file = req.files;
+    const userId = req.body.user_id;
+
+    const shop = await prisma.shop.first({
+      where: {
+        loginId: parseInt(userId)
+      }
+    });
 
     // return res.status(200).end();
     if (!file) {
@@ -269,7 +276,7 @@ const addproduct = async (req, res) => {
         "price":parseFloat(req.body.price),
         "quantity":parseInt(req.body.quantity),
         "description":req.body.description,
-        "shopId":parseInt(req.body.vendor),
+        "shopId":shop.id,
         "categoryId":category.id,
         "image":imageArray[0],
         "images":imageArray

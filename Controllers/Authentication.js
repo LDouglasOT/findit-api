@@ -2,7 +2,8 @@ const { PrismaClient } = require('@prisma/client');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto')
-const axios = require('axios')
+const axios = require('axios');
+const { env } = require('process');
 
 let alphabet = ['A11', 'B12', 'C13', 'D14', 'E15', 'F16', 'G17', 'H18', 'I19', 'J110', 'K111', 'L112', 'M113', 'N114', 'O115', 'P116', 'Q117', 'R118', 'S119', 'T120', 'U121', 'V122', 'W123', 'X127', 'Y126', 'Z118']
 
