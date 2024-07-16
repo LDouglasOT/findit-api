@@ -9,7 +9,7 @@ let alphabet = ['A11', 'B12', 'C13', 'D14', 'E15', 'F16', 'G17', 'H18', 'I19', '
 
 const prisma = new PrismaClient();
 const saltRounds = 10;
-const jwtSecret = 'your_jwt_secret_key';
+const jwtSecret = process.env.JWT_SECRET
 
 const registerUser = async (req, res) => {
   try {
