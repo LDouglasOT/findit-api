@@ -24,12 +24,11 @@ const updateproduct = async (req, res) => {
   try {
 
     const file = req.files;
-
+    console.log("engages")
     // return res.status(200).end();
-    if (!file) {
-      return res.status(400).send('No file uploaded.');
-    }
     let imageArray = [];
+    if (file) {
+       
     for (const singlefile of file) {
       const fileName = `${Date.now()}-${singlefile.originalname}`;
 
@@ -43,6 +42,9 @@ const updateproduct = async (req, res) => {
       });
       imageArray.push(imageUrl[0]);
     }
+
+    }
+  
     if(imageArray.length > 0){
       const update = await prisma.Products.update({
         where:{
@@ -59,6 +61,7 @@ const updateproduct = async (req, res) => {
         }
       })    
     }else{
+      console.log(req.body)
       const update = await prisma.Products.update({
         where:{
           id:parseInt(req.body.id),
@@ -71,9 +74,10 @@ const updateproduct = async (req, res) => {
           "description":req.body.description,
         }
       })  
+      console.log(update)
     }
  
-
+console.log("returning the response now")
 
 return res.status(200).end()
 

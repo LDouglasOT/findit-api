@@ -17,14 +17,23 @@ const categories=async(req,res)=>{
 
 const getcategoriesbyId=async(req,res)=>{
     const id = req.params.id;
+    let count = req.params.count;
+    count = parseInt(count);
     try{
         const category = await prisma.products.findMany({
+            skip:count,
             where:{
                 categoryId:parseInt(id),
                 isProduct:true
             }
         });
-        res.status(200).json(category);
+        if(category.length < 20){
+          count = 0;  
+        }else{
+            count = count + 20;
+        }
+
+        res.status(200).json({"category":category,"count":count});
     }catch(e){
         console.error('Error fetching category:', e);
         res.status(500).json({error:'Internal Server Error'});

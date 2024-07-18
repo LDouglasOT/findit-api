@@ -75,6 +75,6 @@ router.get('/categories', categories);
  *         description: Products created successfully
  */
 
-router.get('/categories/:id', getcategoriesbyId);
+router.get('/categories/:id/:count', getcategoriesbyId);
 
 module.exports = router;
