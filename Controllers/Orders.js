@@ -1,49 +1,45 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const crypto = require('crypto');
 
 
 const PlaceOrder = async (req, res) => {
     const { phone, email, name, product } = req.body;
     console.log("PlaceOrder");
     console.log(req.body);
-  
-    const productsByShopId = product.reduce((acc, prod) => {
-      if (!acc[prod.shopId]) {
-        acc[prod.shopId] = [];
-      }
-      acc[prod.shopId].push(prod);
-      return acc;
-    }, {});
+    const orderId = crypto.randomBytes(16).toString('hex');
+
   
     try {
+      for(const product  of req.body.product){
 
-      for (const [shopId, products] of Object.entries(productsByShopId)) {
-        const order = await prisma.order.create({
-          data: {
-            shop: {
-              connect: { id: parseInt(shopId) }
-            },
-            order: {
-              create: products.map(prod => ({
-                productName: prod.productName,
-                discount: prod.discount,
-                price: prod.price,
-                quantity: prod.quantity,
-                size: prod.size,
-                color: prod.color,
-                description: prod.description,
-                image: prod.image,
-                isProduct:false,
-                shop: {
-                  connect: { id: prod.shopId }
-                }
-              }))
-            }
-          }
+        const order_details = await prisma.OrderDetails.create({
+          data:{
+          prodId: product.id,
+          orderId: product.id,
+          productId: product.id,
+          quantity: product.quantity,
+          price: product.price,
+          productName: product.productName,
+          shopId:product.shopId,
+          orderHash:orderId,
+          img:product.image,
+        }
         });
-  
-        console.log(`Order created for shopId ${shopId} with id ${order.id}`);
+
       }
+
+      const order = await prisma.Order.create({
+        data: {
+          orderHash: orderId,
+          email: email,
+          isProcessing:true,
+          orderHash: orderId,
+          Name:name,
+          PhoneNumber:phone,
+
+        },
+      });
   
       return res.status(200).json({ message: "Order Placed Successfully" });
     } catch (e) {
@@ -52,6 +48,107 @@ const PlaceOrder = async (req, res) => {
     }
   };
 
+  const allOrders = async (req, res) => {
+    const userId = req.body.user_id;
+    try {
+      const shop = await prisma.Shop.findFirst({
+        where: {
+          loginId: parseInt(userId)
+        }
+      });
+  
+      if (!shop) {
+        return res.status(404).json({ error: 'Shop not found' });
+      }
+  
+      const products = await prisma.OrderDetails.findMany({
+        where: {
+          shopId: shop.id,
+          orderStatus: false
+        }
+      });
+  
+      const orderhashes = products.map(product => product.orderHash);
+  
+      const pendingOrders = await prisma.Order.findMany({
+        where: {
+          isDelivered:false,
+          orderHash: {
+            in: orderhashes
+          }
+        },
+        include:{
+          order:true
+        }
+      });
+
+      return res.status(200).json(pendingOrders);
+    } catch (e) {
+      console.error(e);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+  };
+  
+
+const allOrderDetails = async (req, res) => {
+  console.log("allOrderDetails");
+    const hash = req.params.hash;
+    const user_id = req.body.user_id;
+    console.log(hash);
+    console.log(user_id);
+    try {
+      const shop = await prisma.Shop.findFirst({
+        where:{
+          loginId:parseInt(user_id)
+        }
+      })
+      const hashcode = await prisma.OrderDetails.findMany({
+        where:{
+          orderHash:hash,
+          shopId:shop.id,
+          orderStatus:false
+        }
+      })
+   
+      return res.status(200).json(hashcode)
+    }catch(e){
+      console.log(e.message);
+      return res.status(500).json({ error: 'Internal Server Error' });  
+    }
+}
+
+const completeOrder=async(req,res)=>{
+
+  try{
+    const { ids } = req.body;
+
+    const updatePromises = ids.map(id =>
+      prisma.OrderDetails.update({
+        where: { id },
+        data: { orderStatus: true },
+      })
+    );
+
+    const getmainorder = await prisma.OrderDetails.findFirst({
+      where:{
+        id:ids[0]
+      }
+    })
+
+    await Promise.all(updatePromises);
+    
+    return res.status(200).json({message:"Order Completed Successfully"});
+
+  }catch(e){
+    console.log(e.message);
+    return res.status(500).json({ error: 'Internal Server Error' });  
+  }
+
+}
+
 module.exports = {
-    PlaceOrder
+    PlaceOrder,
+    allOrders,
+    allOrderDetails,
+    completeOrder
 }

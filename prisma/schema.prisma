@@ -47,7 +47,6 @@ model Shop{
   hasOffer  Boolean @default(false) 
   category  String @default("General")
   rating    Int @default(1)
-  orders    Order[]
   trial     DateTime @default(now())
   credit    Int @default(0)
 }
@@ -108,15 +107,18 @@ model Category{
 }
 
 model Order{
+
   id Int @id @default(autoincrement())
+  Name String
+  PhoneNumber String
+  email String
   created DateTime @default(now())
   isDelivered Boolean @default(false)
   isPaid Boolean @default(false)
   isCancelled Boolean @default(false)
   isProcessing Boolean @default(false)
-  shop Shop @relation(fields: [shopId], references: [id])
-  shopId Int
   order Products[]
+  orderHash  String?
 }
 
 model Banner{
@@ -128,3 +130,19 @@ model Banner{
   color     String
   header    String?
 }
+
+model OrderDetails{
+  id        Int      @id @default(autoincrement())
+  prodId    Int
+  orderId   Int
+  productId Int
+  quantity  Int
+  price     Float
+  created   DateTime @default(now())
+  productName String
+  discount    Int @default(0)
+  shopId      Int
+  orderHash  String?
+  orderStatus Boolean @default(false)
+  img        String @default("https://res.cloudinary.com/dxvzhx7zg/image/upload/v1629780134/ecommerce/placeholder.png")
+} 
