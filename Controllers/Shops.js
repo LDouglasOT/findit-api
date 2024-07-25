@@ -233,4 +233,12 @@ const FetchShop = async (req, res) => {
 }
 
 
-module.exports = { createShop, getAllShops, getShopById, updateShopById, deleteShopById,getTrendingShops,myShop,searchVendorProducts,FetchShop };
+const purchaseCredit = (req, res) => {
+  console.log(req.body)
+const {phone,amount} = req.body;  
+console.log("credit purchase now")
+return res.status(200).json({message:"Credit purchased successfully"})
+
+}
+
+module.exports = { createShop, getAllShops, getShopById, updateShopById, deleteShopById,getTrendingShops,myShop,searchVendorProducts,FetchShop,purchaseCredit };

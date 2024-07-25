@@ -4,6 +4,7 @@ const { createProducts, getAllProducts, getProductsById, updateProductsById, del
 const { searchProducts,getPopularProducts,getReviews,CreateReview } = require("../Controllers/search");
 const multer = require('multer');
 const { authenticate } = require('../middleware/Authentication');
+const { categoryProducts }=require("../Controllers/categories")
 const upload = multer();
 
 
@@ -202,5 +203,8 @@ router.post('/reviews/create/', CreateReview);
 router.post("/product/update",upload.array('userImages'),updateproduct)
 
 router.post("/product/add",upload.array('userImages'),authenticate,addproduct)
+
+
+router.post("/category/:category",categoryProducts)
 
 module.exports = router;

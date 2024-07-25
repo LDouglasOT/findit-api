@@ -43,6 +43,7 @@ app.use('/', require('./routes/api.products'));
 app.use('/', require('./routes/api.categories'));
 app.use('/', require('./routes/api.orders'));
 app.use('/', require('./routes/api.utilities'));
+app.use("/", require("./routes/api.purchase"));
 
 
 const PORT = process.env.PORT || 3011;

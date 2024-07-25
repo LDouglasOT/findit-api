@@ -41,6 +41,27 @@ const getcategoriesbyId=async(req,res)=>{
 
 }
 
+
+const categoryProducts=async(req,res)=>{    
+    const category = req.params.category;   
+    console.log(category);
+    try{
+
+        const products = await prisma.products.findMany({
+            where:{
+                category:category,
+                isProduct:true
+            }
+        });
+        return res.status(200).json(products);
+
+    }catch(e){
+        console.error('Error fetching category:', e);
+        res.status(500).json({error:'Internal Server Error'});
+    
+    }
+}
+
 module.exports = {
-    categories,getcategoriesbyId
+    categories,getcategoriesbyId,categoryProducts
 }
